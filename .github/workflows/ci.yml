@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  release:
+    types: [published]
+
+jobs:
+  gcc_64:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: setup Docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      # - name: login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUBUSERNAME }}
+      #     password: ${{ secrets.DOCKERHUBPASSWORD }}
+      #     logout: true
+
+      - name: build branch without pushing
+        # Push to arbitrary feature branch will not push the image
+        if: github.event.action != 'published' && github.ref != 'refs/heads/master'
+        run: |
+          docker build ./x86_64/ --rm -t qt_x86_64:5.15.2
+      # - name: build main and push to dockerhub
+      #   # Push to master will push the image to master
+      #   if: github.event.action != 'published' && github.ref == 'refs/heads/master'
+      #   run : |
+      #     python rebuild_and_upload.py --${{ matrix.compiler }} ${{ matrix.compiler-version }} --tag latest --build_number $GITHUB_RUN_NUMBER --upload
+
+  android:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: setup Docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      # - name: login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ secrets.DOCKERHUBUSERNAME }}
+      #     password: ${{ secrets.DOCKERHUBPASSWORD }}
+      #     logout: true
+
+      - name: build branch without pushing
+        # Push to arbitrary feature branch will not push the image
+        if: github.event.action != 'published' && github.ref != 'refs/heads/master'
+        run: |
+          docker build ./android/ --rm -t qt_android:5.15.2
+      # - name: build main and push to dockerhub
+      #   # Push to master will push the image to master
+      #   if: github.event.action != 'published' && github.ref == 'refs/heads/master'
+      #   run : |
+      #     python rebuild_and_upload.py --${{ matrix.compiler }} ${{ matrix.compiler-version }} --tag latest --build_number $GITHUB_RUN_NUMBER --upload
