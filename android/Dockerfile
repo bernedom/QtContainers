@@ -11,7 +11,7 @@ RUN apt-get -qq install -y mesa-common-dev libglu1-mesa-dev libfontconfig1-dev l
     libxcb-glx0-dev libxkbcommon-x11-dev libssl-dev libxkbcommon-dev libxkbcommon-x11-dev \
     libxcb-xinerama0-dev libxcb-render-util0-dev  libxcb-icccm4-dev libxcb-util-dev libxcb-shm0-dev \
     libxcb-image0-dev libxcb-keysyms1-dev \
-    bluez libbluetooth-dev
+    bluez libbluetooth-dev clang
 RUN git clone https://code.qt.io/qt/qt5.git
 WORKDIR qt5
 RUN git checkout v${QT_VERSION}
@@ -53,8 +53,6 @@ RUN echo "${SDK_SHA256} -" > sum.txt && curl -fLs "${SDK_URL}" | tee /tmp/sdk-to
 RUN mkdir /tmp/android && cd /tmp/android && echo "${NDK_SHA256} -" > sum.txt && curl -fLs "${NDK_URL}" | tee ndk.zip | sha256sum -c sum.txt \
     && unzip -q ndk.zip && mv android-ndk-* $ANDROID_NDK_ROOT && chmod -R +rX $ANDROID_NDK_ROOT \
     && rm -rf /tmp/android
-
-RUN apt-get -qq install -y clang
 
 WORKDIR ./qt-build
 RUN ../configure -xplatform android-clang -disable-rpath -opensource -nomake examples -nomake tests -confirm-license -android-ndk ${ANDROID_NDK_ROOT} -android-sdk ${ANDROID_SDK_ROOT} -no-warnings-are-errors -prefix "/usr/local/Qt/"
