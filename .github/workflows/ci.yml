@@ -26,14 +26,13 @@ jobs:
       #     password: ${{ secrets.DOCKERHUBPASSWORD }}
       #     logout: true
 
-      - name: build branch without pushing
+      - name: build desktop container
         # Push to arbitrary feature branch will not push the image
-        if: github.event.action != 'published' && github.ref != 'refs/heads/master'
         run: |
           docker build ./x86_64/ --rm -t qt_x86_64:5.15.2
       # - name: build main and push to dockerhub
-      #   # Push to master will push the image to master
-      #   if: github.event.action != 'published' && github.ref == 'refs/heads/master'
+      #   # Push to main will push the image to master
+      #   if: github.event.action != 'published' && github.ref == 'refs/heads/main'
       #   run : |
       #     python rebuild_and_upload.py --${{ matrix.compiler }} ${{ matrix.compiler-version }} --tag latest --build_number $GITHUB_RUN_NUMBER --upload
 
@@ -56,13 +55,12 @@ jobs:
       #     password: ${{ secrets.DOCKERHUBPASSWORD }}
       #     logout: true
 
-      - name: build branch without pushing
+      - name: build android container
         # Push to arbitrary feature branch will not push the image
-        if: github.event.action != 'published' && github.ref != 'refs/heads/master'
         run: |
           docker build ./android/ --rm -t qt_android:5.15.2
       # - name: build main and push to dockerhub
-      #   # Push to master will push the image to master
-      #   if: github.event.action != 'published' && github.ref == 'refs/heads/master'
+      #   # Push to main will push the image to master
+      #   if: github.event.action != 'published' && github.ref == 'refs/heads/main'
       #   run : |
-      #     python rebuild_and_upload.py --${{ matrix.compiler }} ${{ matrix.compiler-version }} --tag latest --build_number $GITHUB_RUN_NUMBER --upload
+      
