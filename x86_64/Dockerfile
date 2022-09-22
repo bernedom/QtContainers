@@ -12,13 +12,13 @@ RUN apt-get -qq install -y mesa-common-dev libglu1-mesa-dev libfontconfig1-dev l
     libxcb-xinerama0-dev libxcb-render-util0-dev  libxcb-icccm4-dev libxcb-util-dev libxcb-shm0-dev \
     libxcb-image0-dev libxcb-keysyms1-dev \
     bluez libbluetooth-dev
+
 RUN git clone https://code.qt.io/qt/qt5.git
 WORKDIR qt5
-RUN git checkout v${QT_VERSION}
-RUN perl init-repository
+RUN git checkout v${QT_VERSION} &&perl init-repository
+
 WORKDIR ./qt-build
 RUN ../configure -xcb -xcb-xlib -qt-zlib -qt-libjpeg -qt-libpng -system-freetype -fontconfig -qt-pcre -qt-harfbuzz -opensource -nomake examples -nomake tests -confirm-license -prefix "/usr/local/Qt"
-RUN make -s -j$(nproc)
-RUN make install
+RUN make -s -j$(nproc) && make install
 WORKDIR /
 RUN rm -rf qt && rm -rf ./qt-build

@@ -1,25 +1,7 @@
 FROM ubuntu:bionic
 
 ARG QT_VERSION=5.15.2
-
-# Build and install Qt from source
-RUN apt-get update
-RUN apt-get -qq install -y build-essential python python3 git perl 
-
-RUN apt-get -qq install -y mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libx11-dev \
-    libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libx11-xcb-dev \
-    libxcb-glx0-dev libxkbcommon-x11-dev libssl-dev libxkbcommon-dev libxkbcommon-x11-dev \
-    libxcb-xinerama0-dev libxcb-render-util0-dev  libxcb-icccm4-dev libxcb-util-dev libxcb-shm0-dev \
-    libxcb-image0-dev libxcb-keysyms1-dev \
-    bluez libbluetooth-dev clang
-RUN git clone https://code.qt.io/qt/qt5.git
-WORKDIR qt5
-RUN git checkout v${QT_VERSION}
-RUN perl init-repository
-#todo move upwards
-RUN apt-get -qq install -y openjdk-8-jdk-headless openjdk-8-jre-headless curl unzip
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-
 ARG NDK_TOOLCHAIN_PREFIX=arm-linux-androideabi
 ARG NDK_VERSION=r20b
 ARG NDK_URL="https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux-x86_64.zip"
@@ -40,9 +22,19 @@ ENV ANDROID_HOME=${SDK_INSTALL_DIR} \
     ANDROID_NDK_TOOLCHAIN_VERSION=4.9 \
     ANDROID_NDK_TOOLCHAIN_ABI=armeabi-v7a \
     ANDROID_NDK_HOST=linux-x86_64 \
-    ANDROID_NDK_PLATFORM=${SDK_PLATFORM} 
+    ANDROID_NDK_PLATFORM=${SDK_PLATFORM}  
 
 ENV PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
+
+# Build and install Qt from source
+RUN apt-get update && apt-get -qq install -y build-essential python python3 git perl \
+    mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libx11-dev \
+    libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libx11-xcb-dev \
+    libxcb-glx0-dev libxkbcommon-x11-dev libssl-dev libxkbcommon-dev libxkbcommon-x11-dev \
+    libxcb-xinerama0-dev libxcb-render-util0-dev  libxcb-icccm4-dev libxcb-util-dev libxcb-shm0-dev \
+    libxcb-image0-dev libxcb-keysyms1-dev \
+    bluez libbluetooth-dev clang openjdk-8-jdk-headless openjdk-8-jre-headless curl unzip
+
 
 # Download & unpack android SDK
 RUN echo "${SDK_SHA256} -" > sum.txt && curl -fLs "${SDK_URL}" | tee /tmp/sdk-tools.zip | sha256sum -c sum.txt \
@@ -54,9 +46,13 @@ RUN mkdir /tmp/android && cd /tmp/android && echo "${NDK_SHA256} -" > sum.txt &&
     && unzip -q ndk.zip && mv android-ndk-* $ANDROID_NDK_ROOT && chmod -R +rX $ANDROID_NDK_ROOT \
     && rm -rf /tmp/android
 
+RUN git clone https://code.qt.io/qt/qt5.git
+WORKDIR qt5
+RUN git checkout v${QT_VERSION} && perl init-repository
+
+
 WORKDIR ./qt-build
 RUN ../configure -xplatform android-clang -disable-rpath -opensource -nomake examples -nomake tests -confirm-license -android-ndk ${ANDROID_NDK_ROOT} -android-sdk ${ANDROID_SDK_ROOT} -no-warnings-are-errors -prefix "/usr/local/Qt/"
-RUN make -s -j$(nproc)
-RUN make install
+RUN make -s -j$(nproc) && make install
 WORKDIR /
 RUN rm -rf qt && rm -rf ./qt-build
