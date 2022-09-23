@@ -19,22 +19,22 @@ jobs:
       - name: setup Docker buildx
         uses: docker/setup-buildx-action@v1
 
-      # - name: login to DockerHub
-      #   uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKERHUBUSERNAME }}
-      #     password: ${{ secrets.DOCKERHUBPASSWORD }}
-      #     logout: true
+      - name: login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUBUSERNAME }}
+          password: ${{ secrets.DOCKERHUBPASSWORD }}
+          logout: true
 
       - name: build desktop container
         # Push to arbitrary feature branch will not push the image
         run: |
-          docker build ./x86_64/ --rm -t qt_x86_64:5.15.2
-      # - name: build main and push to dockerhub
-      #   # Push to main will push the image to master
-      #   if: github.event.action != 'published' && github.ref == 'refs/heads/main'
-      #   run : |
-      #     python rebuild_and_upload.py --${{ matrix.compiler }} ${{ matrix.compiler-version }} --tag latest --build_number $GITHUB_RUN_NUMBER --upload
+          docker build ./x86_64/ --rm -t bernedom/qt_x86_64:5.15.2
+      - name: build main and push to dockerhub
+        # Push to main will push the image to master
+        if: github.event.action != 'published' && github.ref == 'refs/heads/main'
+        run : |
+          docker push bernedom/qt_x86_64:5.15.2
 
   android:
     runs-on: ubuntu-22.04
@@ -48,19 +48,20 @@ jobs:
       - name: setup Docker buildx
         uses: docker/setup-buildx-action@v1
 
-      # - name: login to DockerHub
-      #   uses: docker/login-action@v1
-      #   with:
-      #     username: ${{ secrets.DOCKERHUBUSERNAME }}
-      #     password: ${{ secrets.DOCKERHUBPASSWORD }}
-      #     logout: true
+      - name: login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUBUSERNAME }}
+          password: ${{ secrets.DOCKERHUBPASSWORD }}
+          logout: true
 
       - name: build android container
         # Push to arbitrary feature branch will not push the image
         run: |
-          docker build ./android/ --rm -t qt_android:5.15.2
-      # - name: build main and push to dockerhub
-      #   # Push to main will push the image to master
-      #   if: github.event.action != 'published' && github.ref == 'refs/heads/main'
-      #   run : |
+          docker build ./android/ --rm -t bernedom/qt_android:5.15.2
+      - name: build main and push to dockerhub
+        # Push to main will push the image to master
+        if: github.event.action != 'published' && github.ref == 'refs/heads/main'
+        run : | 
+          docker push bernedom/qt_android:5.15.2
       
