@@ -52,7 +52,6 @@ RUN git checkout v${QT_VERSION} && perl init-repository
 
 
 WORKDIR ./qt-build
-RUN ../configure -xplatform android-clang -disable-rpath -opensource -nomake examples -nomake tests -confirm-license -android-ndk ${ANDROID_NDK_ROOT} -android-sdk ${ANDROID_SDK_ROOT} -no-warnings-are-errors -prefix "/usr/local/Qt/"
-RUN make -s -j$(nproc) && make install
+RUN ../configure -xplatform android-clang -disable-rpath -opensource -nomake examples -nomake tests -confirm-license -android-ndk ${ANDROID_NDK_ROOT} -android-sdk ${ANDROID_SDK_ROOT} -no-warnings-are-errors -prefix "/usr/local/Qt/" && make -s -j$(nproc) && make install
 WORKDIR /
 RUN rm -rf qt && rm -rf ./qt-build

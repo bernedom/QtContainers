@@ -18,7 +18,6 @@ WORKDIR qt5
 RUN git checkout v${QT_VERSION} &&perl init-repository
 
 WORKDIR ./qt-build
-RUN ../configure -xcb -xcb-xlib -qt-zlib -qt-libjpeg -qt-libpng -system-freetype -fontconfig -qt-pcre -qt-harfbuzz -opensource -nomake examples -nomake tests -confirm-license -prefix "/usr/local/Qt"
-RUN make -s -j$(nproc) && make install
+RUN ../configure -xcb -xcb-xlib -qt-zlib -qt-libjpeg -qt-libpng -system-freetype -fontconfig -qt-pcre -qt-harfbuzz -opensource -nomake examples -nomake tests -confirm-license -prefix "/usr/local/Qt" && make -s -j$(nproc) && make install
 WORKDIR /
 RUN rm -rf qt && rm -rf ./qt-build
