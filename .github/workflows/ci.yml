@@ -13,6 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set output variables
+        id: vars
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+          echo ::set-output name=sha_short::$(git rev-parse --short HEAD)
+      - name: Check output variables
+        run: |
+          echo ${{ steps.vars.outputs.tag }}
+          echo ${{ steps.vars.outputs.sha_short }}
+
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -29,12 +39,13 @@ jobs:
       - name: build desktop container
         # Push to arbitrary feature branch will not push the image
         run: |
-          docker build ./x86_64/ --rm -t bernedom/qt_x86_64:5.15.2
+          docker build ./x86_64/ --rm -t bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }}
       - name: build main and push to dockerhub
         # Push to main will push the image to master
-        if: github.event.action != 'published' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run : |
-          docker push bernedom/qt_x86_64:5.15.2
+          docker tag bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }} bernedom/qt_x86_64_5.15.2:latest
+          docker push bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }}
 
   android:
     runs-on: ubuntu-22.04
@@ -42,10 +53,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v1
 
-      - name: setup Docker buildx
+      - name: Set output variables
+        id: vars
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+          echo ::set-output name=sha_short::$(git rev-parse --short HEAD)
+      - name: Check output variables
+        run: |
+          echo ${{ steps.vars.outputs.tag }}
+          echo ${{ steps.vars.outputs.sha_short }}
+
+      - name: Setup QEMUgithub.event.action != 'published' && 
         uses: docker/setup-buildx-action@v1
 
       - name: login to DockerHub
@@ -58,10 +77,11 @@ jobs:
       - name: build android container
         # Push to arbitrary feature branch will not push the image
         run: |
-          docker build ./android/ --rm -t bernedom/qt_android:5.15.2
+          docker build ./android/ --rm -t bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }}
       - name: build main and push to dockerhub
         # Push to main will push the image to master
-        if: github.event.action != 'published' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'
         run : | 
-          docker push bernedom/qt_android:5.15.2
+          docker tag bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }} bernedom/qt_android_5.15.2:latest
+          docker push bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }}
       
