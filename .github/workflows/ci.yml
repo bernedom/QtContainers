@@ -40,12 +40,13 @@ jobs:
         # Push to arbitrary feature branch will not push the image
         run: |
           docker build ./x86_64/ --rm -t bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }}
-      - name: build main and push to dockerhub
+      - name: push to dockerhub
         # Push to main will push the image to master
         if: github.ref == 'refs/heads/main'
         run : |
           docker tag bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }} bernedom/qt_x86_64_5.15.2:latest
           docker push bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }}
+          docker push bernedom/qt_x86_64_5.15.2:latest
 
   android:
     runs-on: ubuntu-22.04
@@ -78,10 +79,11 @@ jobs:
         # Push to arbitrary feature branch will not push the image
         run: |
           docker build ./android/ --rm -t bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }}
-      - name: build main and push to dockerhub
+      - name: push to dockerhub
         # Push to main will push the image to master
         if: github.ref == 'refs/heads/main'
         run : | 
           docker tag bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }} bernedom/qt_android_5.15.2:latest
           docker push bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }}
+          docker push bernedom/qt_android_5.15.2:latest
       
