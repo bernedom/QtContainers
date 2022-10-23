@@ -27,7 +27,7 @@ ENV ANDROID_HOME=${SDK_INSTALL_DIR} \
 ENV PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
 
 # Build and install Qt from source
-RUN apt-get update && apt-get -qq install -y build-essential python python3 git perl \
+RUN apt-get update && apt-get -qq install -y build-essential python python3 python3-pip git perl \
     mesa-common-dev libglu1-mesa-dev libfontconfig1-dev libfreetype6-dev libx11-dev \
     libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libx11-xcb-dev \
     libxcb-glx0-dev libxkbcommon-x11-dev libssl-dev libxkbcommon-dev libxkbcommon-x11-dev \
@@ -46,12 +46,6 @@ RUN mkdir /tmp/android && cd /tmp/android && echo "${NDK_SHA256} -" > sum.txt &&
     && unzip -q ndk.zip && mv android-ndk-* $ANDROID_NDK_ROOT && chmod -R +rX $ANDROID_NDK_ROOT \
     && rm -rf /tmp/android
 
-RUN git clone https://code.qt.io/qt/qt5.git
-WORKDIR qt5
-RUN git checkout v${QT_VERSION} && perl init-repository
+RUN pip3 install aqtinstall
 
-
-WORKDIR ./qt-build
-RUN ../configure -xplatform android-clang -disable-rpath -opensource -nomake examples -nomake tests -confirm-license -android-ndk ${ANDROID_NDK_ROOT} -android-sdk ${ANDROID_SDK_ROOT} -no-warnings-are-errors -prefix "/usr/local/Qt/" && make -s -j$(nproc) && make install
-WORKDIR /
-RUN rm -rf qt && rm -rf ./qt-build
+RUN aqt install-qt linux android ${QT_VERSION} android_armv7
