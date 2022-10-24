@@ -46,6 +46,6 @@ RUN mkdir /tmp/android && cd /tmp/android && echo "${NDK_SHA256} -" > sum.txt &&
     && unzip -q ndk.zip && mv android-ndk-* $ANDROID_NDK_ROOT && chmod -R +rX $ANDROID_NDK_ROOT \
     && rm -rf /tmp/android
 
-RUN pip3 install aqtinstall
+RUN pip3 install aqtinstall setuptools
 
 RUN aqt install-qt linux android ${QT_VERSION} android_armv7
