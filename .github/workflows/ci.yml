@@ -10,6 +10,12 @@ jobs:
   gcc_64:
     runs-on: ubuntu-22.04
 
+    strategy:
+      fail-fast: true
+      matrix:
+        name:
+          [${{ matrix.name }}, 6.0.2]
+
     steps:
       - uses: actions/checkout@v2
 
@@ -39,14 +45,14 @@ jobs:
       - name: build desktop container
         # Push to arbitrary feature branch will not push the image
         run: |
-          docker build ./x86_64/ --rm -t bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }}
+          docker build ./x86_64/ --build-arg QT_VERSION=${{ matrix.name }} --rm -t bernedom/qt_x86_64_${{ matrix.name }}:${{ steps.vars.outputs.sha_short }}
       - name: push to dockerhub
         # Push to main will push the image to master
         if: github.ref == 'refs/heads/main'
         run : |
-          docker tag bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }} bernedom/qt_x86_64_5.15.2:latest
-          docker push bernedom/qt_x86_64_5.15.2:${{ steps.vars.outputs.sha_short }}
-          docker push bernedom/qt_x86_64_5.15.2:latest
+          docker tag bernedom/qt_x86_64_${{ matrix.name }}:${{ steps.vars.outputs.sha_short }} bernedom/qt_x86_64_${{ matrix.name }}:latest
+          docker push bernedom/qt_x86_64_${{ matrix.name }}:${{ steps.vars.outputs.sha_short }}
+          docker push bernedom/qt_x86_64_${{ matrix.name }}:latest
 
   android:
     runs-on: ubuntu-22.04
@@ -78,12 +84,12 @@ jobs:
       - name: build android container
         # Push to arbitrary feature branch will not push the image
         run: |
-          docker build ./android/ --rm -t bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }}
+          docker build ./android/ --rm --build-arg QT_VERSION=${{ matrix.name }} -t bernedom/qt_android_${{ matrix.name }}:${{ steps.vars.outputs.sha_short }}
       - name: push to dockerhub
         # Push to main will push the image to master
         if: github.ref == 'refs/heads/main'
         run : | 
-          docker tag bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }} bernedom/qt_android_5.15.2:latest
-          docker push bernedom/qt_android_5.15.2:${{ steps.vars.outputs.sha_short }}
-          docker push bernedom/qt_android_5.15.2:latest
+          docker tag bernedom/qt_android_${{ matrix.name }}:${{ steps.vars.outputs.sha_short }} bernedom/qt_android_${{ matrix.name }}:latest
+          docker push bernedom/qt_android_${{ matrix.name }}:${{ steps.vars.outputs.sha_short }}
+          docker push bernedom/qt_android_${{ matrix.name }}:latest
       
